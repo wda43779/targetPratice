@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <style>
+        html, body {
+            margin: 0;
+        }
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .target {
+            position: absolute;
+            background: black;
+            width: 7px;
+            height: 10px;
+        }
+    </style>
+    <div class="container">
+        Score: <span class="score"></span>
+        <br>
+        Bullet used: <span class="bullet"></span>
+        <div class="target">
+
+        </div>
+    </div>
+    <script>
+        let UItop = 0
+        let UIleft = 0
+        let initPosition = () => {
+            UItop = document.querySelector(".container").clientHeight / 2
+            UIleft = document.querySelector(".container").clientWidth / 2;
+        }
+        initPosition()
+        let UIscore = 0
+        let UIbullet = 0
+        let nextPosition = function*() {
+            for (;;) {
+                let xDiff = Math.random() * 4 - 2
+                let yDiff = Math.random() * 2 - 1
+                let continueTimes = 30 + Math.random() * 120
+                for (let i = 0; i < continueTimes; i++) {
+                    UItop += yDiff
+                    UIleft += xDiff
+                    if (UItop < 0 || UItop > document.querySelector(".container").clientHeight
+                        || UIleft < 0 || UIleft > document.querySelector(".container").clientWidth) {
+                            initPosition()
+                        }
+                    yield
+                }
+            }
+        }()
+        let nextColor = function*() {
+            let colors = ['red', 'blue', 'green']
+            for (;;) {
+                for (let color of colors) {
+                    document.querySelector(".target").style.background = color
+                    yield
+                }
+            }
+        }()
+        nextPosition.next()
+        let nextFrame = () => {
+            nextPosition.next()
+            document.querySelector(".target").style.top = UItop + "px"
+            document.querySelector(".target").style.left = UIleft + "px"
+            window.requestAnimationFrame(nextFrame)
+        }
+        nextFrame()
+        window.addEventListener("click", () => {
+            UIbullet += 1
+            document.querySelector(".bullet").innerHTML = UIbullet + ""
+        })
+        document.querySelector(".target").addEventListener("click", () => {
+            UIscore += 1
+            document.querySelector(".score").innerHTML = UIscore + ""
+            nextColor.next()
+        })
+    </script>
+</body>
+</html>
